@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { loginApi, getProfileApi } from "../api/authApi";
 
 const AuthContext = createContext(null);
@@ -54,35 +54,52 @@ export function AuthProvider({ children }) {
 
   //Credenciales de prueba
   const login = async (username, password) => {
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  // 🔐 credenciales en duro
-  const MOCK_USER = {
-    username: "admin",
-    name: "Administrador",
-    role: "ADMIN",
-    fullname: "Anderson Espinoza",
-    puntos_ultima_carga: 2000,
-  };
+    const MOCK_USER = {
+      username: "admin",
+      name: "Administrador",
+      role: "ADMIN",
+      fullname: "Anderson Espinoza",
+      puntos_ultima_carga: 2000,
+      compras: [
+        {
+          codigoCliente: "9177717",
+          participante: "JINSOP KELVIN",
+          mes: "Septiembre",
+          fecha: "2025-09-10",
+          compra: 0,
+          puntos: 0,
+        },
+        {
+          codigoCliente: "9177717",
+          participante: "JINSOP KELVIN",
+          mes: "Octubre",
+          fecha: "2025-10-05",
+          compra: 150,
+          puntos: 300,
+        },
+      ],
+    };
 
-  const MOCK_PASSWORD = "123456";
-  const MOCK_TOKEN = "mock-token-123";
+    const MOCK_PASSWORD = "123456";
+    const MOCK_TOKEN = "mock-token-123";
 
-  // Simula llamada async
-  await new Promise((res) => setTimeout(res, 500));
+    // Simula llamada async
+    await new Promise((res) => setTimeout(res, 500));
 
-  if (username === MOCK_USER.username && password === MOCK_PASSWORD) {
-    localStorage.setItem("token", MOCK_TOKEN);
-    setUser(MOCK_USER);
+    if (username === MOCK_USER.username && password === MOCK_PASSWORD) {
+      localStorage.setItem("token", MOCK_TOKEN);
+      setUser(MOCK_USER);
+      setLoading(false);
+      return true;
+    }
+
+    setError("Usuario o contraseña incorrectos");
     setLoading(false);
-    return true;
-  }
-
-  setError("Usuario o contraseña incorrectos");
-  setLoading(false);
-  return false;
-};
+    return false;
+  };
 
 
   const logout = () => {
@@ -90,10 +107,27 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const compras = user?.compras || [];
+
+  const resumenMensual = useMemo(() => {
+    return compras.reduce((acc, item) => {
+      acc[item.mes] = (acc[item.mes] || 0) + item.puntos;
+      return acc;
+    }, {});
+  }, [compras]);
+
+  const totalPuntos = useMemo(
+    () => Object.values(resumenMensual).reduce((a, b) => a + b, 0),
+    [resumenMensual]
+  );
+
   return (
     <AuthContext.Provider
       value={{
         user,
+        compras,
+        resumenMensual,
+        totalPuntos,
         isAuthenticated: !!user,
         loading,
         error,

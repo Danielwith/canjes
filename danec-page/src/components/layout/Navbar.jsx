@@ -78,6 +78,18 @@ export default function Navbar() {
             </NavLink>
 
             <NavLink
+              to="/mis-puntos"
+              className={({ isActive }) =>
+                `${navBase} ${isActive
+                  ? "bg-white/20 font-semibold color-red"
+                  : "text-black"
+                }`
+              }
+            >
+              Mis puntos
+            </NavLink>
+
+            <NavLink
               to="/catalogo"
               className={({ isActive }) =>
                 `${navBase} ${isActive
@@ -87,6 +99,17 @@ export default function Navbar() {
               }
             >
               CATÁLOGO
+            </NavLink>
+            <NavLink
+              to="/carrito"
+              className={({ isActive }) =>
+                `${navBase} ${isActive
+                  ? "bg-white/20 font-semibold color-red"
+                  : "text-black"
+                }`
+              }
+            >
+              CARRITO
             </NavLink>
 
             <NavLink

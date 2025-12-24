@@ -6,11 +6,12 @@ import MainLayout from "../components/layout/MainLayout";
 //Páginas 
 import HomePage from "../pages/HomePage";
 import BienvenidoPage from "../pages/BienvenidoPage";
-import PromocionesPage from "../pages/PromocionesPage"
+import  MisPuntosPage  from "../pages/MisPuntosPage";
 import CanjesPage from "../pages/CanjesPage"
 import MiCuentaPage from "../pages/MiCuentaPage";
 import PasosPage from "../pages/PasosPage"
 import ProductsPage from "../pages/ProductsPage";
+import CarritoPage from "../pages/CarritoPage";
 
 
 export default function AppRouter() {
@@ -25,11 +26,13 @@ export default function AppRouter() {
           <Route path="/" element={<HomePage />} />
           <Route path="/bienvenido" element={<BienvenidoPage />} />
           {/* <Route path="/inicio" element={<HomePage />} /> */}
-          <Route path="/promociones" element={<PromocionesPage />} />
+         
           <Route path="/canjes" element={<CanjesPage />} />
           <Route path="/mi-cuenta" element={<MiCuentaPage />} />
+          <Route path="/mis-puntos" element={<MisPuntosPage />} />
           <Route path="/como-funciona" element={<PasosPage />} />
           <Route path="/catalogo" element={<ProductsPage />} />
+          <Route path="/carrito" element={<CarritoPage />} />
 
           {/* Aquí podrías agregar más rutas internas:
               <Route path="/usuarios" element={<UsuariosPage />} />

@@ -1,14 +1,15 @@
 
 import { useAuth } from "../context/AuthContext";
 import { useBranding } from "../context/BrandingContext";
+import { ButtonNavigate } from "../components/ui/buttons/ButtonNavigation";
 
-import { useNavigate } from "react-router-dom";
+
 
 
 export default function BienvenidoPage() {
   const { user } = useAuth();
   const { branding } = useBranding();
-  const navigate = useNavigate();
+
 
   const bgWelcome = branding.bannerWelcome;
 
@@ -41,12 +42,14 @@ export default function BienvenidoPage() {
 
           <p class="text-xl uppercase font-bold py-2">"Danec"</p>
 
-          <button
+          {/* <button
             onClick={() => navigate("/mi-cuenta")}
             className="px-4 py-2 bg-main rounded-2xl text-white w-fit text-xl font-[700]"
           >
             CONTINUAR
-          </button>
+          </button> */}
+          <ButtonNavigate linkPage="/mi-cuenta" text="CONTINUAR" />
+       
 
         </div>
 
