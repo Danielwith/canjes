@@ -6,8 +6,10 @@ export default function MainLayout() {
   const { branding } = useBranding();
   const location = useLocation();
 
+  const NO_NAV = ["/bienvenido", "/mi-cuenta"];
+
   // No mostramos el Navbar en la página de bienvenida
-  const showNavbar = location.pathname !== "/bienvenido";
+  const showNavbar = !NO_NAV.includes(location.pathname);
 
   return (
     <div className="min-h-screen flex flex-col">
