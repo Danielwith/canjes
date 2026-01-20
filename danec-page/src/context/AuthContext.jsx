@@ -1,112 +1,168 @@
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { loginApi, getProfileApi } from "../api/authApi";
+import { getUserDetailsApi, getUserPointsApi, getUserCartApi } from "../api/userApi";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // respuesta completa del /user
+  const [userDetails, setUserDetails] = useState(null); // respuesta completa del /user/form_detail
+  const [userPoints, setUserPoints] = useState(null); // respuesta completa del /user/form_detail
+  const [cart, setCart] = useState([]);
+  const [cartTotal, setCartTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Validar token al cargar la app
+  // Normaliza el perfil real
+  const profile = useMemo(() => user?.Response?.oResponse ?? null, [user]);
+
+  // Token persistido
+  const token = useMemo(() => localStorage.getItem("token"), [user]);
+  // (nota: el memo aquí no es crítico; si prefieres, usa const token = localStorage.getItem("token");)
+
+  // Autenticado si hay token
+  const isAuthenticated = !!localStorage.getItem("token");
+
+  // Flag: si updated !== true => debe completar datos
+  const needsProfileUpdate = useMemo(() => {
+    const updated = profile?.ExtraInfo?.updated;
+
+    return updated !== true; // null/undefined/false => true (necesita actualizar)
+  }, [profile]);
+
+  // Validar token al cargar la app (rehidratación en F5)
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    const t = localStorage.getItem("token");
+    if (!t) {
       setLoading(false);
       return;
     }
 
     (async () => {
       try {
-        const me = await getProfileApi();
+        const me = await getProfileApi(); // interceptor manda Bearer
+        const userDetails = await getUserDetailsApi();
+        const userPoints = await getUserPointsApi();
         setUser(me);
+        setUserDetails(userDetails);
+        setUserPoints(userPoints);
+
+        // Cargar carrito
+        let currentCart = [];
+        try {
+          const cartData = await getUserCartApi();
+          // Adjust based on actual API response structure (assuming it might be the array or wrapped)
+          currentCart = Array.isArray(cartData) ? cartData : (cartData?.Response?.oResponse || []);
+        } catch (e) {
+          console.error("Error loading cart", e);
+        }
+
+        const total = currentCart.reduce((acc, item) => acc + (item.Total || 0), 0);
+
+        setCart(currentCart);
+        setCartTotal(total);
+
       } catch (err) {
         console.error(err);
         localStorage.removeItem("token");
+        setUser(null);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  // La comento hasta que esté el back listo
-  // const login = async (username, password) => {
-  //   setLoading(true);
-  //   setError(null);
+  // Función para refrescar datos del usuario (llamada manual)
+  const refreshSession = async () => {
+    try {
+      const me = await getProfileApi();
+      const userDetails = await getUserDetailsApi();
+      const userPoints = await getUserPointsApi();
+      setUser(me);
+      setUserDetails(userDetails);
+      setUserPoints(userPoints);
 
-  //   try {
-  //     const { token, user } = await loginApi({
-  //       username,
-  //       password,
-  //     });
+      // Recargar carrito
+      let currentCart = [];
+      try {
+        const cartData = await getUserCartApi();
+        currentCart = Array.isArray(cartData) ? cartData : (cartData?.Response?.oResponse || []);
+      } catch (e) {
+        console.error("Error reloading cart", e);
+      }
+      const total = currentCart.reduce((acc, item) => acc + (item.Total || 0), 0);
 
-  //     localStorage.setItem("token", token);
-  //     setUser(user);
-  //     return true;
-  //   } catch (err) {
-  //     console.error(err);
-  //     setError(err.response?.data?.message || "Credenciales inválidas");
-  //     return false;
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+      setUser(me);
+      setUserDetails(userDetails);
+      setUserPoints(userPoints);
+      setCart(currentCart);
+      setCartTotal(total);
+      return true;
+    } catch (error) {
+      console.error("Error refreshing session:", error);
+      return false;
+    }
+  };
 
-  //Credenciales de prueba
   const login = async (username, password) => {
     setLoading(true);
     setError(null);
 
-    const MOCK_USER = {
-      username: "admin",
-      name: "Administrador",
-      role: "ADMIN",
-      fullname: "Anderson Espinoza",
-      puntos_ultima_carga: 2000,
-      compras: [
-        {
-          codigoCliente: "9177717",
-          participante: "JINSOP KELVIN",
-          mes: "Septiembre",
-          fecha: "2025-09-10",
-          compra: 0,
-          puntos: 0,
-        },
-        {
-          codigoCliente: "9177717",
-          participante: "JINSOP KELVIN",
-          mes: "Octubre",
-          fecha: "2025-10-05",
-          compra: 150,
-          puntos: 300,
-        },
-      ],
-    };
+    try {
+      const { token } = await loginApi({ username, password });
 
-    const MOCK_PASSWORD = "123456";
-    const MOCK_TOKEN = "mock-token-123";
+      localStorage.setItem("token", token);
 
-    // Simula llamada async
-    await new Promise((res) => setTimeout(res, 500));
+      const me = await getProfileApi();
+      const userDetails = await getUserDetailsApi();
+      const userPoints = await getUserPointsApi();
+      setUser(me);
+      setUserDetails(userDetails);
+      setUserPoints(userPoints);
 
-    if (username === MOCK_USER.username && password === MOCK_PASSWORD) {
-      localStorage.setItem("token", MOCK_TOKEN);
-      setUser(MOCK_USER);
-      setLoading(false);
+      // Cargar carrito al login
+      let currentCart = [];
+      try {
+        const cartData = await getUserCartApi();
+        currentCart = Array.isArray(cartData) ? cartData : (cartData?.Response?.oResponse || []);
+      } catch (e) {
+        console.error("Error loading cart on login", e);
+      }
+      const total = currentCart.reduce((acc, item) => acc + (item.Total || 0), 0);
+
+      setUser(me);
+      setUserDetails(userDetails);
+      setUserPoints(userPoints);
+      setCart(currentCart);
+      setCartTotal(total);
       return true;
+    } catch (err) {
+      console.error(err);
+
+      const msg =
+        err?.message ||
+        err?.response?.data?.response?.sRetorno ||
+        err?.response?.data?.errors?.[0]?.message ||
+        "Credenciales inválidas";
+
+      setError(msg);
+
+      localStorage.removeItem("token");
+      setUser(null);
+
+      return false;
+    } finally {
+      setLoading(false);
     }
-
-    setError("Usuario o contraseña incorrectos");
-    setLoading(false);
-    return false;
   };
-
 
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
+    setError(null);
   };
 
+  // ---- Mantengo tus campos aunque tu API real no devuelve compras ----
   const compras = user?.compras || [];
 
   const resumenMensual = useMemo(() => {
@@ -124,15 +180,24 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider
       value={{
-        user,
-        compras,
-        resumenMensual,
-        totalPuntos,
-        isAuthenticated: !!user,
+        user,              // respuesta completa /user
+        profile,
+        userDetails,       // user.response.oResponse (normalizado)
+        userPoints,
+        cart,
+        cartTotal,
+        isAuthenticated,   // por token (fix F5)
+        needsProfileUpdate,// updated !== true
         loading,
         error,
         login,
         logout,
+
+        // legacy (si lo sigues usando en otras vistas)
+        compras,
+        resumenMensual,
+        totalPuntos,
+        refreshSession,    // Exponer función de refresco
       }}
     >
       {children}
@@ -142,8 +207,6 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth debe usarse dentro de AuthProvider");
-  }
+  if (!ctx) throw new Error("useAuth debe usarse dentro de AuthProvider");
   return ctx;
 }

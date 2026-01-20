@@ -7,11 +7,16 @@ import { ButtonNavigate } from "../components/ui/buttons/ButtonNavigation";
 
 
 export default function BienvenidoPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const info = profile?.ExtraInfo;
+  // console.log("ver info", info);
+
   const { branding } = useBranding();
+  // console.log("ver branding", branding);
 
 
   const bgWelcome = branding.bannerWelcome;
+  // console.log("ver branding", bgWelcome);
 
   return (
     <section
@@ -30,9 +35,9 @@ export default function BienvenidoPage() {
         <div className="w-1/2 flex  flex-col justify-center items-center">
           <p class="text-7xl uppercase font-[700] py-8 mt-16">¡Hola!</p>
 
-          {user?.fullname ? (
+          {info?.name ? (
             <p className="text-4xl text-center uppercase pt-5 pb-2">
-              {user.fullname}
+              {info.name}
             </p>
           ) : (
             <p className="text-4xl text-center uppercase pt-5 pb-2">
@@ -49,7 +54,7 @@ export default function BienvenidoPage() {
             CONTINUAR
           </button> */}
           <ButtonNavigate linkPage="/mi-cuenta" text="CONTINUAR" />
-       
+
 
         </div>
 

@@ -2,12 +2,13 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute({ redirectTo = "/login" }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
-  if (!isAuthenticated) {
-    return <Navigate to={redirectTo} replace />;
+  if (loading) {
+    return <div className="min-h-screen grid place-items-center">Cargando...</div>;
   }
 
-  // Aquí devolvemos un Outlet para anidar layouts/páginas
+  if (!isAuthenticated) return <Navigate to={redirectTo} replace />;
+
   return <Outlet />;
 }

@@ -1,7 +1,7 @@
 // src/components/ui/TablePuntos.jsx
-import { useMemo } from "react";
-import { useAuth } from "../../context/AuthContext";
 import { TrendingUp, Coins, HandCoins, Trophy } from "lucide-react";
+
+import { useAuth } from "../../context/AuthContext";
 
 const columns = [
   { key: "participante", label: "PARTICIPANTE", icon: null },
@@ -11,29 +11,49 @@ const columns = [
   { key: "disponibles", label: "PUNTOS DISPONIBLES", icon: Trophy },
 ];
 
-export default function TablePuntos() {
-  const { user } = useAuth(); // <- sale del Context
+export default function TablePuntos({ loading = false, error = "", data }) {
 
-  // Ajusta estos nombres a tu estructura real (abajo te dejo cómo)
-  const data = useMemo(() => {
-    if (!user) return [];
 
-    return [
-      {
-        participante: user.fullname ?? user.nombres ?? "",
-        ultima: user.puntos_ultima_carga ?? "",
-        acumulados: user.puntos_acumulados ?? 0,
-        canjeados: user.puntos_canjeados ?? 0,
-        disponibles: user.puntos_disponibles ?? 0,
-      },
-    ];
-  }, [user]);
+  const { profile } = useAuth();
+
+  function formatDateText(dateString) {
+    if (!dateString) return "-";
+
+    const date = new Date(dateString);
+    if (isNaN(date)) return "-";
+
+    return date.toLocaleDateString("es-PE", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  // console.log(profile);
+  console.log(data);
+  const row =
+    data?.oResponse?.[0] ??
+    data?.Response?.oResponse?.[0] ??
+    data?.Response?.[0] ??
+    data?.Response ??
+    data;
+
+  // Map a las columnas visuales (ajusta keys a tu respuesta real)
+  const mapped = row
+    ? {
+      participante: profile?.NameCanonical ?? profile?.Nombres ?? "-",
+      ultima: formatDateText(row.lastMonth) ?? row.lastMonth ?? row.lastMonth ?? 0,
+      acumulados: row.won ?? row.won ?? row.won ?? 0,
+      canjeados: row.spent ?? row.spent ?? row.spent ?? 0,
+      disponibles: row.total ?? row.total ?? row.total ?? 0,
+    }
+    : null;
 
   return (
     <div className="w-full overflow-x-auto px-3">
       <table className="w-full border-collapse table-puntos-home">
         <thead>
-          <tr className="bg-main  text-white">
+          <tr className="bg-main text-white">
             {columns.map((c) => (
               <th
                 key={c.key}
@@ -49,24 +69,34 @@ export default function TablePuntos() {
         </thead>
 
         <tbody>
-          {data.length === 0 ? (
+          {loading ? (
+            <tr>
+              <td className="px-6 py-8 text-center" colSpan={columns.length}>
+                Cargando puntos...
+              </td>
+            </tr>
+          ) : error ? (
+            <tr>
+              <td className="px-6 py-8 text-center text-red-600" colSpan={columns.length}>
+                {error}
+              </td>
+            </tr>
+          ) : !mapped ? (
             <tr>
               <td className="px-6 py-8 text-center" colSpan={columns.length}>
                 No hay datos para mostrar.
               </td>
             </tr>
           ) : (
-            data.map((row, idx) => (
-              <tr key={idx} className="border-b border-gray-300">
-                <td className="px-6 py-6 whitespace-pre-line text-center">
-                  {row.participante}
-                </td>
-                <td className="px-6 py-6 text-center">{row.ultima}</td>
-                <td className="px-6 py-6 text-center">{row.acumulados}</td>
-                <td className="px-6 py-6 text-center">{row.canjeados}</td>
-                <td className="px-6 py-6 text-center">{row.disponibles}</td>
-              </tr>
-            ))
+            <tr className="border-b border-gray-300">
+              <td className="px-6 py-6 whitespace-pre-line text-center">
+                {mapped.participante}
+              </td>
+              <td className="px-6 py-6 text-center">{mapped.ultima}</td>
+              <td className="px-6 py-6 text-center">{mapped.acumulados}</td>
+              <td className="px-6 py-6 text-center">{mapped.canjeados}</td>
+              <td className="px-6 py-6 text-center">{mapped.disponibles}</td>
+            </tr>
           )}
         </tbody>
       </table>
