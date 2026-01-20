@@ -1,9 +1,29 @@
+import { useEffect, useState } from "react";
+import { getUserExchanges } from "../api/userApi";
+
 export default function CanjesPage() {
-  const rows = [
-    { id: 1, producto: "RASQUETAS METAL", codigo: "2668EX152511110942", cantidad: 2, estado: "Entregado" },
-    { id: 2, producto: "LATAS DE PANIFICACIÓN", codigo: "2668EX152511140944", cantidad: 2, estado: "Entregado" },
-    { id: 3, producto: "LATAS DE PANIFICACIÓN", codigo: "2668EX162512080806", cantidad: 3, estado: "En revisión" },
-  ];
+  const [canjes, setCanjes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCanjes = async () => {
+      try {
+        const res = await getUserExchanges();
+
+        // Normaliza: si ya es array úsalo, si viene envuelto úsalo también
+        const list =
+          Array.isArray(res) ? res :
+            Array.isArray(res?.Response?.oResponse) ? res.Response.oResponse :
+              [];
+
+        setCanjes(list);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCanjes();
+  }, []);
 
   return (
     <div className="p-6">
@@ -22,15 +42,30 @@ export default function CanjesPage() {
                 <th className="py-3 px-6">Estado</th>
               </tr>
             </thead>
+
             <tbody>
-              {rows.map((r) => (
-                <tr key={r.id} className="border-b">
-                  <td className="py-4 px-6 text-sm">{r.producto}</td>
-                  <td className="py-4 px-6 text-sm">{r.codigo}</td>
-                  <td className="py-4 px-6 text-sm">{r.cantidad}</td>
-                  <td className="py-4 px-6 text-sm">{r.estado}</td>
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="py-6 px-6 text-center">
+                    Cargando...
+                  </td>
                 </tr>
-              ))}
+              ) : canjes.length > 0 ? (
+                canjes.map((r) => (
+                  <tr key={r?.Exchange?.Id ?? r?.Exchange?.Code} className="border-b">
+                    <td className="py-4 px-6 text-sm">{r?.Exchange?.Product ?? "-"}</td>
+                    <td className="py-4 px-6 text-sm">{r?.Exchange?.Code ?? "-"}</td>
+                    <td className="py-4 px-6 text-sm">{r?.Exchange?.Quantity ?? "-"}</td>
+                    <td className="py-4 px-6 text-sm">{r?.Estado ?? "-"}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="py-6 px-6 text-xl font-bold text-center text-black">
+                    No hay canjes disponibles
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -5,8 +5,11 @@ import { useBranding } from "../../context/BrandingContext";
 import { UserCircle, ChevronDown, Menu, X } from "lucide-react";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, needsProfileUpdate } = useAuth();
   const { branding } = useBranding();
+
+
+  // console.log(branding);
   const [open, setOpen] = useState(false);          // dropdown desktop
   const [mobileOpen, setMobileOpen] = useState(false); // sidebar mobile
   const dropdownRef = useRef();
@@ -39,138 +42,191 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="after-red-bar h-24 bg-[var(--color-primary,#111827)] text-white">
-        <div className="container mx-auto py-4 px-3 flex items-center justify-between md:px-0">
-          {/* LEFT: Logo + Nombre */}
-          <div className="flex items-center gap-3">
-            {branding?.logo && (
-              <img src={branding.logo} alt="" className="main-logo" />
-            )}
-            <span className="font-semibold">
-              {branding?.name || "Mi App"}
-            </span>
-          </div>
 
-          {/* CENTER: NAV (solo desktop) */}
-          <nav className="hidden md:flex items-center gap-2">
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                `${navBase} ${isActive
-                  ? "bg-white/20 font-semibold color-red"
-                  : "text-black"
-                }`
-              }
-            >
-              Inicio
-            </NavLink>
+      {
+        !needsProfileUpdate ? (
 
-            <NavLink
-              to="/como-funciona"
-              className={({ isActive }) =>
-                `${navBase} ${isActive
-                  ? "bg-white/20 font-semibold color-red"
-                  : "text-black"
-                }`
-              }
-            >
-              ¿Cómo gano?
-            </NavLink>
 
-            <NavLink
-              to="/mis-puntos"
-              className={({ isActive }) =>
-                `${navBase} ${isActive
-                  ? "bg-white/20 font-semibold color-red"
-                  : "text-black"
-                }`
-              }
-            >
-              Mis puntos
-            </NavLink>
+          <header className="after-red-bar h-24 bg-[var(--color-primary)] text-white">
+            <div className="container mx-auto py-4 px-3 flex items-center justify-between md:px-0">
+              {/* LEFT: Logo + Nombre */}
+              <div className="flex items-center gap-3">
+                {branding?.Logo && (
+                  <img src={branding.Logo} alt="" className="main-logo" />
+                )}
 
-            <NavLink
-              to="/catalogo"
-              className={({ isActive }) =>
-                `${navBase} ${isActive
-                  ? "bg-white/20 font-semibold color-red"
-                  : "text-black"
-                }`
-              }
-            >
-              CATÁLOGO
-            </NavLink>
-            <NavLink
-              to="/carrito"
-              className={({ isActive }) =>
-                `${navBase} ${isActive
-                  ? "bg-white/20 font-semibold color-red"
-                  : "text-black"
-                }`
-              }
-            >
-              CARRITO
-            </NavLink>
+              </div>
 
-            <NavLink
-              to="/canjes"
-              className={({ isActive }) =>
-                `${navBase} ${isActive
-                  ? "bg-white/20 font-semibold color-red"
-                  : "text-black"
-                }`
-              }
-            >
-              Canjes
-            </NavLink>
-          </nav>
-
-          {/* RIGHT: Perfil (desktop) */}
-          <div
-            className="hidden md:flex relative rounded-full bg-main"
-            ref={dropdownRef}
-          >
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen(!open);
-              }}
-              className="flex items-center gap-2 justify-center p-4 rounded-full text-black hover:scale-105 transition"
-            >
-              <UserCircle size={22} className="text-white" />
-              <ChevronDown size={12} className="text-white" />
-            </button>
-
-            {open && (
-              <div className="absolute z-20 top-11/12 right-0 mt-2 w-44 bg-white text-black rounded-lg shadow-xl border animate-fade-in">
-                <button
-                  onClick={() => {
-                    setOpen(false);
-                    navigate("/mi-cuenta");
-                  }}
-                  className="flex justify-center items-center w-full text-left px-4 py-2 hover:bg-gray-100"
+              {/* CENTER: NAV (solo desktop) */}
+              <nav className="hidden md:flex items-center gap-2">
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    `${navBase} ${isActive
+                      ? "bg-white/20 font-semibold color-red"
+                      : "text-black"
+                    }`
+                  }
                 >
-                  Mi Cuenta
+                  Inicio
+                </NavLink>
+
+                <NavLink
+                  to="/como-funciona"
+                  className={({ isActive }) =>
+                    `${navBase} ${isActive
+                      ? "bg-white/20 font-semibold color-red"
+                      : "text-black"
+                    }`
+                  }
+                >
+                  ¿Cómo gano?
+                </NavLink>
+
+                <NavLink
+                  to="/mis-puntos"
+                  className={({ isActive }) =>
+                    `${navBase} ${isActive
+                      ? "bg-white/20 font-semibold color-red"
+                      : "text-black"
+                    }`
+                  }
+                >
+                  Mis puntos
+                </NavLink>
+
+                <NavLink
+                  to="/catalogo"
+                  className={({ isActive }) =>
+                    `${navBase} ${isActive
+                      ? "bg-white/20 font-semibold color-red"
+                      : "text-black"
+                    }`
+                  }
+                >
+                  CATÁLOGO
+                </NavLink>
+                <NavLink
+                  to="/carrito"
+                  className={({ isActive }) =>
+                    `${navBase} ${isActive
+                      ? "bg-white/20 font-semibold color-red"
+                      : "text-black"
+                    }`
+                  }
+                >
+                  CARRITO
+                </NavLink>
+
+                <NavLink
+                  to="/canjes"
+                  className={({ isActive }) =>
+                    `${navBase} ${isActive
+                      ? "bg-white/20 font-semibold color-red"
+                      : "text-black"
+                    }`
+                  }
+                >
+                  Canjes
+                </NavLink>
+              </nav>
+
+              {/* RIGHT: Perfil (desktop) */}
+              <div
+                className="hidden md:flex relative rounded-full bg-main"
+                ref={dropdownRef}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpen(!open);
+                  }}
+                  className="flex items-center gap-2 justify-center p-4 rounded-full text-black hover:scale-105 transition"
+                >
+                  <UserCircle size={22} className="text-white" />
+                  <ChevronDown size={12} className="text-white" />
                 </button>
 
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                >
-                  Salir
+                {open && (
+                  <div className="absolute z-20 top-11/12 right-0 mt-2 w-44 bg-white text-black rounded-lg shadow-xl border animate-fade-in">
+                    <button
+                      onClick={() => {
+                        setOpen(false);
+                        navigate("/mi-cuenta");
+                      }}
+                      className="flex justify-center items-center w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      Mi Cuenta
+                    </button>
+
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                    >
+                      Salir
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Botón menú (solo mobile) */}
+              <div className="flex justify-center items-center md:hidden">
+                <button onClick={() => setMobileOpen(true)}>
+                  <Menu size={24} className="text-black" />
                 </button>
               </div>
-            )}
-          </div>
+            </div>
+          </header>
+        ) : (
 
-          {/* Botón menú (solo mobile) */}
-          <div className="flex justify-center items-center md:hidden">
-            <button onClick={() => setMobileOpen(true)}>
-              <Menu size={24} className="text-black" />
-            </button>
-          </div>
-        </div>
-      </header>
+          <header className="after-red-bar h-24 bg-[var(--color-primary)] text-white">
+            <div className="container mx-auto py-4 px-3 flex items-center justify-between md:px-0">
+              <nav className="hidden md:flex justify-end w-full  items-center gap-2">
+                <div
+                  className="hidden md:flex w-fit relative rounded-full bg-main"
+                  ref={dropdownRef}
+                >
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpen(!open);
+                    }}
+                    className="flex items-center gap-2 justify-center p-4 rounded-full text-black hover:scale-105 transition"
+                  >
+                    <UserCircle size={22} className="text-white" />
+                    <ChevronDown size={12} className="text-white" />
+                  </button>
+
+                  {open && (
+                    <div className="absolute z-20 top-11/12 right-0 mt-2 w-44 bg-white text-black rounded-lg shadow-xl border animate-fade-in">
+                      <button
+                        onClick={() => {
+                          setOpen(false);
+                          navigate("/mi-cuenta");
+                        }}
+                        className="flex justify-center items-center w-full text-left px-4 py-2 hover:bg-gray-100"
+                      >
+                        Mi Cuenta
+                      </button>
+
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                      >
+                        Salir
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+              </nav>
+            </div>
+
+
+          </header>
+        )
+      }
+
 
       {/* SIDEBAR MOBILE */}
       {mobileOpen && (

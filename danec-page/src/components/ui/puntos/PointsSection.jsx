@@ -1,7 +1,8 @@
 import { useAuth } from "../../../context/AuthContext";
 
-const PointsSection = () => {
-  const { compras } = useAuth();
+const PointsSection = ({ compras = [], selectedMonth = "" }) => {
+
+  const totalAmount = compras.reduce((sum, c) => sum + (c.total || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -15,8 +16,8 @@ const PointsSection = () => {
         <div className="text-white px-8 py-2  font-bold">
           COMPRAS
         </div>
-        <span className="text-white font-semibold">
-          Septiembre
+        <span className="text-white font-semibold capitalize">
+          {selectedMonth}
         </span>
       </div>
 
@@ -34,19 +35,19 @@ const PointsSection = () => {
           </thead>
 
           <tbody>
-            {compras.map((c, i) => (
-              <tr key={i} className="border-b">
-                <td className="py-3">{c.codigoCliente}</td>
-                <td>
-                  {c.participante.split(" ").map((p, i) => (
-                    <div key={i}>{p}</div>
-                  ))}
-                </td>
-                <td>{c.mes}</td>
-                <td>${c.compra}</td>
-                <td>{c.puntos}</td>
-              </tr>
-            ))}
+            {compras.length === 0 ? (
+              <tr><td colSpan={5} className="py-4 text-gray-500">No hay movimientos</td></tr>
+            ) : (
+              compras.map((c, i) => (
+                <tr key={i} className="border-b">
+                  <td className="py-3">{c.extra_info?.codigo_cliente || "-"}</td>
+                  <td>{c.name}</td>
+                  <td>{new Date(c.start).toLocaleDateString()}</td>
+                  <td>-</td>
+                  <td>{c.total}</td>
+                </tr>
+              ))
+            )}
           </tbody>
 
           {/* Footer total */}
@@ -55,8 +56,8 @@ const PointsSection = () => {
               <td colSpan={3} className="py-3">
                 Total
               </td>
-              <td>$0</td>
               <td>-</td>
+              <td>{totalAmount}</td>
             </tr>
           </tfoot>
         </table>
@@ -72,4 +73,4 @@ const PointsSection = () => {
   );
 };
 
-export default  PointsSection;
+export default PointsSection;

@@ -38,11 +38,11 @@ export default function HomePage() {
             >
                 <SplideTrack className="w-full">
                     {banners.map((banner) => (
-                        <SplideSlide key={banner.id}>
+                        <SplideSlide key={banner.Id}>
                             <div className="flex justify-center items-center h-[80vh]">
                                 <img
-                                    src={banner.src}
-                                    alt={banner.alt}
+                                    src={banner.Src}
+                                    alt={banner.Alt}
                                     className="w-auto h-full object-contain rounded-lg m-auto"
                                 />
                             </div>

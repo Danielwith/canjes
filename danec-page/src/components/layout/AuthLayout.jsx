@@ -5,6 +5,7 @@ import { useBranding } from "../../context/BrandingContext";
 export default function AuthLayout({ children }) {
   const { branding } = useBranding();
 
+
   return (
     <div
       className="min-h-screen p-4 pb-0 flex items-end justify-end bg-no-repeat bg-cover bg-center"
