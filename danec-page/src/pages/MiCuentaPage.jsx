@@ -114,9 +114,10 @@ export default function MiCuentaPage() {
         updated: true
       };
       console.log("Enviando datos:", payload);
-      await updateProfileApi(payload);
+      const res = await updateProfileApi(payload);
+      const newToken = res?.Response?.oResponse?.token;
 
-      await refreshSession(); // Refresh data immediately
+      await refreshSession(newToken); // Refresh data with new token (if any)
 
       toast.success("Perfil actualizado correctamente");
     } catch (error) {
