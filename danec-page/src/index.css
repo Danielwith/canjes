@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+:root {
+    --primary-color: #f70030;
+
+}
+
+*,
+:after,
+:before {
+    border: 0 solid #e5e7eb;
+    box-sizing: border-box;
+}
+
+/**Inicio clases generales**/
+.color-red {
+    color: var(--primary-color);
+}
+
+.bg-main {
+    background-color: var(--primary-color);
+}
+
+.main-logo {
+    max-width: 110px;
+}
+
+.after-red-bar:after {
+    background-color: var(--primary-color);
+    content: "";
+    height: 10px;
+    position: absolute;
+    top: 85px;
+    width: 100%;
+    z-index: 10;
+}
+
+.splide__arrow {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    background-color: transparent !important;
+}
+
+.splide__arrow svg {
+    fill: #000;
+    height: 2.25rem !important;
+    width: 2.25rem !important;
+}
+
+
+@keyframes fade {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade .2s ease-out;
+}
+
+
+.table-puntos-home th:first-child {
+    border-top-left-radius: 1rem;
+}
+
+.table-puntos-home th:last-child {
+    border-top-right-radius: 1rem;
+}
+
+/* Range Slider Support */
+.range-slider-thumb-custom {
+    pointer-events: none;
+}
+
+.range-slider-thumb-custom::-webkit-slider-thumb {
+    pointer-events: auto;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: black;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -6px;
+    /* Adjust based on track height if needed */
+    position: relative;
+    z-index: 20;
+}
+
+.range-slider-thumb-custom::-moz-range-thumb {
+    pointer-events: auto;
+    height: 16px;
+    width: 16px;
+    border: none;
+    border-radius: 50%;
+    background: black;
+    cursor: pointer;
+    z-index: 20;
+}
+
+
+/* Range Slider Support */
+.range-slider-thumb-custom {
+    pointer-events: none;
+}
+
+.range-slider-thumb-custom::-webkit-slider-thumb {
+    pointer-events: auto;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: black;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -6px;
+    /* Adjust based on track height if needed */
+    position: relative;
+    z-index: 20;
+}
+
+.range-slider-thumb-custom::-moz-range-thumb {
+    pointer-events: auto;
+    height: 16px;
+    width: 16px;
+    border: none;
+    border-radius: 50%;
+    background: black;
+    cursor: pointer;
+    z-index: 20;
+}
