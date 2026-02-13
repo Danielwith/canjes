@@ -4,6 +4,7 @@ import { postUserCartApi } from "../api/userApi";
 import ProductCard from "../components/ui/ProductCard";
 import ProductModal from "../components/ui/ProductModal";
 import FiltersSidebar from "../components/ui/FiltersSidebar";
+import QuantityModal from "../components/ui/QuantityModal";
 import { useAuth } from "../context/AuthContext";
 import { useModal } from "../context/ModalContext";
 import { useLoading } from "../context/LoadingContext";
@@ -16,6 +17,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productToQuantity, setProductToQuantity] = useState(null);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const { userPoints, refreshSession, cartTotal } = useAuth();
@@ -78,23 +80,30 @@ export default function ProductsPage() {
     return 0;
   });
 
-  const handleAdd = async (product) => {
-    if (effectivePoints < product.price) {
-      showModal({
-        type: 'error',
-        title: 'Puntos Insuficientes',
-        message: `No tienes suficientes puntos para este producto.`
-      });
-      return;
-    }
+  const handleAdd = (product) => {
+    setProductToQuantity(product);
+  };
 
+  const handleConfirmAdd = async (product, quantity) => {
     showLoading();
     try {
-      await postUserCartApi({ product: product.id, quantity: 1 });
+      const res = await postUserCartApi({ product: product.id, quantity: quantity });
+      
+      // Check for business logic errors in response
+      const sRetorno = res?.Response?.sRetorno || "";
+      if (sRetorno.toLowerCase().includes("supera el stock")) {
+          showModal({
+              type: 'error',
+              title: 'Aviso de Stock',
+              message: sRetorno
+          });
+          return;
+      }
+
       showModal({
         type: 'success',
         title: 'PRODUCTO AGREGADO',
-        message: 'El producto se añadió al carrito correctamente.'
+        message: `${quantity} unidad(es) de "${product.name}" añadidas al carrito.`
       });
       await refreshSession();
     } catch (error) {
@@ -165,6 +174,14 @@ export default function ProductsPage() {
       </div>
 
       {selectedProduct && <ProductModal product={selectedProduct} onClose={closeModal} />}
+      
+      <QuantityModal 
+        isOpen={!!productToQuantity}
+        onClose={() => setProductToQuantity(null)}
+        product={productToQuantity}
+        onConfirm={handleConfirmAdd}
+        availablePoints={effectivePoints}
+      />
     </div>
   );
 }
