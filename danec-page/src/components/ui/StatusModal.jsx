@@ -6,7 +6,7 @@ const StatusModal = ({ isOpen, onClose, type = 'success', title, message }) => {
     const isSuccess = type === 'success';
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-100 p-4 animate-in fade-in duration-300">
             <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all animate-in zoom-in-95 duration-300">
                 <div className={`h-2 ${isSuccess ? 'bg-green-500' : 'bg-red-500'}`} />
 
