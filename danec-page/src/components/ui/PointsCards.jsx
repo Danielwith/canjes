@@ -90,7 +90,7 @@ export default function PointsCards({ loading = false, error = "", data }) {
           return (
             <div
               key={card.key}
-              className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow"
+              className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow"
             >
               <div className="p-3 rounded-full bg-red-50 text-[#f70030]">
                 <Icon size={24} />

@@ -46,7 +46,7 @@ export default function HomePage() {
       <PointsCards loading={loading} error={error} data={pointsData} />
 
       {/* Carrusel (Banner) */}
-      <div className="w-full h-full rounded-2xl overflow-hidden shadow-sm">
+      <div className="w-full h-full rounded-[30px] border border-gray-100 overflow-hidden shadow-sm">
         <Splide
           hasTrack={false}
           aria-label="Carrusel de banners"
@@ -66,7 +66,7 @@ export default function HomePage() {
                 <img
                   src={banner.Src}
                   alt={banner.Alt}
-                  className="w-full h-auto object-cover rounded-2xl"
+                  className="w-full h-auto object-cover rounded-[30px]"
                 />
               </SplideSlide>
             ))}
