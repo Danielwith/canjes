@@ -64,7 +64,19 @@ export default function CarritoPage() {
 
         showLoading();
         try {
-            await postUserCartApi({ product: productId, quantity: newQuantity });
+            const res = await postUserCartApi({ product: productId, quantity: newQuantity });
+            
+            // Check for business logic errors even if request was successful
+            const sRetorno = res?.Response?.sRetorno || "";
+            if (sRetorno.toLowerCase().includes("no se puede") || sRetorno.toLowerCase().includes("supera el stock")) {
+                showModal({
+                    type: 'error',
+                    title: 'Aviso de Stock',
+                    message: sRetorno
+                });
+                return;
+            }
+
             await refreshSession();
 
             if (newQuantity === 0) {
@@ -75,7 +87,7 @@ export default function CarritoPage() {
                 });
             }
         } catch (error) {
-            const msg = error?.response?.data?.message || error?.response?.data?.response?.sRetorno || "Error al actualizar carrito";
+            const msg = error?.response?.data?.Response?.sRetorno || error?.response?.data?.message || "Error al actualizar carrito";
             showModal({
                 type: 'error',
                 title: 'Error al actualizar',
