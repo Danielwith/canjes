@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import { updateProfileApi } from "../api/userApi";
 import avatarPlaceholder from "../assets/react.svg";
 import { useBranding } from "../context/BrandingContext";
+import { useModal } from "../context/ModalContext";
 
 export default function MiCuentaPage() {
   const { user, needsProfileUpdate, userDetails, refreshSession } = useAuth();
   const navigate = useNavigate();
+  const { showModal } = useModal();
 
   const { branding } = useBranding();
 
@@ -29,10 +30,11 @@ export default function MiCuentaPage() {
   useEffect(() => {
     // console.log("Location State in MiCuenta:", location.state);
     if (location.state?.from) {
-      toast.error("Te falta completar tus datos para continuar.", {
-        toastId: "profile-update", // evita duplicados
+      showModal({
+        type: 'error',
+        title: 'Faltan Datos',
+        message: 'Te falta completar tus datos para continuar.'
       });
-
     }
   }, [location.state]);
 
@@ -85,6 +87,15 @@ export default function MiCuentaPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Validation for numeric and length constraints
+    if (name === "cedula" || name === "celular") {
+      if (!/^\d*$/.test(value) || value.length > 10) return;
+    }
+    if (name === "ruc") {
+      if (!/^\d*$/.test(value) || value.length > 13) return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -105,7 +116,37 @@ export default function MiCuentaPage() {
 
   const handleUpdate = async () => {
     if (!isUpdated && !termsAccepted) {
-      toast.error("Debes aceptar los términos y condiciones");
+      showModal({
+        type: 'error',
+        title: 'TÉRMINOS Y CONDICIONES',
+        message: 'Debes aceptar los términos y condiciones'
+      });
+      return;
+    }
+
+    // Exact length validations
+    if (formData.cedula.length !== 10) {
+      showModal({
+        type: 'error',
+        title: 'CAMPOS INCORRECTOS',
+        message: 'La cédula debe tener 10 dígitos'
+      });
+      return;
+    }
+    if (formData.celular.length !== 10) {
+      showModal({
+        type: 'error',
+        title: 'CAMPOS INCORRECTOS',
+        message: 'El celular debe tener 10 dígitos'
+      });
+      return;
+    }
+    if (formData.ruc.length !== 13) {
+      showModal({
+        type: 'error',
+        title: 'CAMPOS INCORRECTOS',
+        message: 'El RUC debe tener 13 dígitos'
+      });
       return;
     }
 
@@ -120,11 +161,25 @@ export default function MiCuentaPage() {
 
       await refreshSession(); // Refresh data immediately
 
-      toast.success("Perfil actualizado correctamente");
-      navigate("/"); // Redirigir al inicio tras éxito
+      const successTitle = !isUpdated ? "REGISTRO EXITOSO" : "ACTUALIZACIÓN EXITOSA";
+      const successMessage = !isUpdated 
+        ? "Tu registro se ha completado correctamente." 
+        : "Perfil actualizado correctamente";
+
+      showModal({
+        type: 'success',
+        title: successTitle,
+        message: successMessage,
+        onConfirm: () => navigate("/")
+      });
+      
     } catch (error) {
       console.error(error);
-      toast.error("Error al actualizar el perfil");
+      showModal({
+        type: 'error',
+        title: 'ERROR',
+        message: 'Error al actualizar el perfil'
+      });
     }
   };
 
