@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { postExchangeApi } from "../../api/userApi";
-import { toast } from "react-toastify";
+import StatusModal from "./StatusModal";
 
 export default function ExchangeModal({ isOpen, onClose, onSuccess }) {
     const [formData, setFormData] = useState({
@@ -19,6 +19,12 @@ export default function ExchangeModal({ isOpen, onClose, onSuccess }) {
     });
 
     const [loading, setLoading] = useState(false);
+    const [statusModal, setStatusModal] = useState({
+        isOpen: false,
+        type: 'success',
+        title: '',
+        message: ''
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -36,7 +42,12 @@ export default function ExchangeModal({ isOpen, onClose, onSuccess }) {
         const emptyFields = requiredFields.filter(field => !formData[field]);
 
         if (emptyFields.length > 0) {
-            toast.error("Por favor completa todos los campos requeridos");
+            setStatusModal({
+                isOpen: true,
+                type: 'error',
+                title: 'CAMPOS INCOMPLETOS',
+                message: 'Por favor completa todos los campos requeridos para el envío.'
+            });
             return;
         }
 
@@ -44,22 +55,41 @@ export default function ExchangeModal({ isOpen, onClose, onSuccess }) {
         try {
             console.log("Sending exchange data:", formData);
             await postExchangeApi(formData);
-            toast.success("¡Canje realizado exitosamente!");
-            onSuccess();
-            onClose();
+
+            setStatusModal({
+                isOpen: true,
+                type: 'success',
+                title: '¡CANJE EXITOSO!',
+                message: 'Tu canje se ha procesado correctamente. Pronto recibirás noticias nuestras.'
+            });
         } catch (error) {
             console.error("Exchange error:", error);
-            console.error("Error response:", error?.response);
             const msg = error?.response?.data?.Response?.sRetorno || error?.response?.data?.message || "Error al realizar el canje";
-            toast.error(msg);
+
+            setStatusModal({
+                isOpen: true,
+                type: 'error',
+                title: 'ERROR EN EL CANJE',
+                message: msg
+            });
         } finally {
             setLoading(false);
         }
     };
 
+    const handleStatusModalClose = () => {
+        const isSuccess = statusModal.type === 'success';
+        setStatusModal(prev => ({ ...prev, isOpen: false }));
+
+        if (isSuccess) {
+            onSuccess();
+            onClose();
+        }
+    };
+
     if (!isOpen) return null;
 
-    return (
+    return (<>
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 <div className="bg-red-600 text-white p-4 flex justify-between items-center">
@@ -262,5 +292,14 @@ export default function ExchangeModal({ isOpen, onClose, onSuccess }) {
                 </form>
             </div>
         </div>
+
+        <StatusModal
+            isOpen={statusModal.isOpen}
+            type={statusModal.type}
+            title={statusModal.title}
+            message={statusModal.message}
+            onClose={handleStatusModalClose}
+        />
+    </>
     );
 }

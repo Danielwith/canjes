@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import ExchangeModal from "../components/ui/ExchangeModal";
+import StatusModal from "../components/ui/StatusModal";
 
 export default function CarritoPage() {
 
@@ -18,6 +19,12 @@ export default function CarritoPage() {
     const [catalog, setCatalog] = useState([]);
     const [loadingCatalog, setLoadingCatalog] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [statusModal, setStatusModal] = useState({
+        isOpen: false,
+        type: 'success',
+        title: '',
+        message: ''
+    });
 
     useEffect(() => {
         (async () => {
@@ -58,8 +65,12 @@ export default function CarritoPage() {
         if (delta > 0) {
             // Check if we have enough effective points for one more item
             if (effectivePoints < unitPrice) {
-                // console.log('❌ Insufficient points');
-                toast.error(`No tienes suficientes puntos para agregar más (${effectivePoints} disponibles, necesitas ${unitPrice}).`);
+                setStatusModal({
+                    isOpen: true,
+                    type: 'error',
+                    title: 'Puntos Insuficientes',
+                    message: `No tienes suficientes puntos para agregar más. Tienes ${effectivePoints} disponibles y necesitas ${unitPrice}.`
+                });
                 return;
             }
             console.log('✅ Sufficient points, proceeding...');
@@ -86,10 +97,13 @@ export default function CarritoPage() {
                 toast.success("Carrito actualizado");
             }
         } catch (error) {
-            // console.error('❌ API Error:', error);
-            // console.error('Error response:', error?.response);
             const msg = error?.response?.data?.message || error?.response?.data?.response?.sRetorno || "Error al actualizar carrito";
-            toast.error(msg);
+            setStatusModal({
+                isOpen: true,
+                type: 'error',
+                title: 'Error al actualizar',
+                message: msg
+            });
         }
     };
 
@@ -196,6 +210,14 @@ export default function CarritoPage() {
                 onSuccess={async () => {
                     await refreshSession();
                 }}
+            />
+
+            <StatusModal
+                isOpen={statusModal.isOpen}
+                type={statusModal.type}
+                title={statusModal.title}
+                message={statusModal.message}
+                onClose={() => setStatusModal(prev => ({ ...prev, isOpen: false }))}
             />
 
         </section>
